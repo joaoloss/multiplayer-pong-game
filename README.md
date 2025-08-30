@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Implementação multiplayer do jogo *Pong* com sockets TCP em Python, utilizando a biblioteca Pygame para a interface gráfica. O projeto demonstra a aplicação prática de conceitos de Redes de Computadores e Sistemas Operacionais, como a arquitetura cliente-servidor, comunicação via sockets, threading e locks para criar um jogo funcional em tempo real.
+Implementação multiplayer do jogo *Pong* utilizando a biblioteca Pygame para a interface gráfica. O projeto demonstra a aplicação prática de conceitos de Redes de Computadores e Sistemas Operacionais, como a **arquitetura cliente-servidor**, comunicação via **sockets TCP**, **multithreading** e **locks** para criar um jogo em tempo real.
 
 ## Tecnologias Utilizadas
 
