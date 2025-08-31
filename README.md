@@ -1,40 +1,37 @@
-# Pong game
+# Pong Game 🏓
 
-## Descrição
+## Description
 
-Implementação multiplayer do jogo *Pong* utilizando a biblioteca Pygame para a interface gráfica. O projeto demonstra a aplicação prática de conceitos de Redes de Computadores e Sistemas Operacionais, como a **arquitetura cliente-servidor**, comunicação via **sockets TCP**, **multithreading** e **locks** para criar um jogo em tempo real.
+Multiplayer implementation of the *Pong* game using the **Pygame** library for the graphical interface.  
+The project demonstrates practical applications of **Computer Networks** and **Operating Systems** concepts, such as **client-server architecture**, **TCP socket communication**, **multithreading**, and **locks**, to create a real-time game.
 
-## Tecnologias Utilizadas
+## Technologies Used
 
-- **Linguagem:** Python 3.8+
-- **Bibliotecas:**
-  - `pygame`: Para a criação da interface gráfica e renderização do jogo.
-  - `socket`: Para a comunicação em rede via Sockets TCP.
-  - `threading`: Para o gerenciamento de múltiplos clientes e partidas simultaneamente no servidor.
-  - `pickle`: Para a serialização de objetos Python a serem enviados pela rede.
-  - `python-dotenv`: Para o gerenciamento de variáveis de ambiente como IP e porta.
+- **Language:** Python 3.8+
+- **Libraries:**
+  - `pygame`: For graphical interface and game rendering.
+  - `socket`: For network communication via TCP.
+  - `threading`: For handling multiple clients and simultaneous matches.
+  - `pickle`: For serializing Python objects to send over the network.
+  - `python-dotenv`: For managing environment variables (IP, port, etc.).
 
-## Como Executar
+## How to Run
 
-### Requisitos
+### Requirements
 
-- Python 3.8 ou superior.
-- pip (gerenciador de pacotes do Python).
+- Python 3.8 or higher  
+- pip (Python package manager)  
 
-### Instruções de Execução
+### Execution Instructions
 
-**1. Clone do repositório**
-
-Execute os seguintes comandos para clonar e acessar o repositório:
+**1. Clone the repository**
 
 ```bash
 git clone https://github.com/joaoloss/pong-game.git
 cd pong-game
 ```
 
-**2. Configuração do Ambiente**
-
-Para isolar o programa e suas dependências, evitando problemas de compatibilidade e versionamento, execute os seguintes comandos:
+**2. Environment Setup**
 
 ```bash
 python3 -m venv venv
@@ -43,81 +40,72 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Isso irá criar um ambiente virtual, ativá-lo e instalar as dependências do `requirements.txt`.
+**3. Connection Setup**
 
-**3. Configuração da Conexão**
-
-Crie um arquivo chamado `.env` na raiz do projeto informando o IP e a porta do servidor:
+Create a `.env` file in the project root:
 
 ```bash
-SERVER_IP=<endereco_ip>
-SERVER_PORT=<numero_da_porta>
+SERVER_IP=<ip_address>
+SERVER_PORT=<port_number>
 ```
 
-**4. Execute o servidor**
-
-Abra um terminal e inicie o servidor com o script:
+**4. Run the server**
 
 ```bash
-# Conceda permissão de execução e rode o script
 python3 server.py
 ```
 
-O terminal exibirá a mensagem "Servidor Pong game iniciado em...".
+**5. Run the client**
 
-**4. Execute o cliente**
-
-Para cada jogador, abra um novo terminal e execute o cliente:
+For each player:
 
 ```bash
-# Conceda permissão de execução e rode o script
 python3 client.py
 ```
 
-## Como testar
+## How to Test
 
-- Inicie o servidor conforme as instruções acima. Ele ficará aguardando por conexões.
-- Inicie o primeiro cliente. Ele pedirá um nome e depois exibirá uma tela de "Aguardando oponente...".
-- Assim que o segundo cliente se conectar e enviar seu nome, o servidor iniciará a partida para ambos. Uma contagem regressiva aparecerá, e o jogo começará.
-- Controle a raquete com as teclas de seta (esquerda e direita).
-- Ao final da partida, uma mensagem de vitória ou derrota será exibida, com a opção de clicar em "Revanche".
+1. Start the server. It will wait for client connections.  
+2. Start the first client, input a name, and wait on the "Waiting for opponent..." screen.  
+3. Once the second client connects, the server starts the match with a countdown.  
+4. Control the paddle with **arrow keys (left/right)**.  
+5. At the end, a victory or defeat message is displayed, with an option for a **Rematch**.
 
-## Fluxo de funcionamento
+## Workflow
 
-Os fluxogramas abaixo ilustram o fluxo de funcionamento do servidor e do cliente, respectivamente.
+![Server flowchart](readme_imgs/server_flux.jpg)  
+![Client flowchart](readme_imgs/client_flux.jpg)  
 
-![Fluxograma do servidor](readme_imgs/server_flux.jpg)
-![Fluxograma do cliente](readme_imgs/client_flux.jpg)
+## Features
 
-## Funcionalidades implementadas
+- Online multiplayer: Two players can play simultaneously.  
+- Matchmaking system: Server pairs connecting players.  
+- Graphical interface developed with Pygame.  
+- Progressive difficulty: Ball speed increases as the match progresses.  
+- Client-server architecture with TCP communication.  
+- Rematch option after a match.  
+- Handles player disconnections gracefully.  
+- Thread-safe access to game state using locks.  
+- Automation scripts for setup and execution.  
+- Network configuration via `.env` file.  
+- Realistic physics: Collision system and ball acceleration.  
+- Intuitive interface: Name input and visual feedback.  
+- Supports multiple simultaneous matches.
 
-- Multiplayer online: Dois jogadores podem se conectar a um servidor e jogar simultaneamente.
-- Sistema de matchmaking: O servidor gerencia uma fila para parear jogadores que se conectam.
-- Interface gráfica: Interface desenvolvida com Pygame.
-- Dificuldade progressiva: A bola acelera à medida que a partida avança para aumentar a dificuldade gradualmente no jogo.
-- Arquitetura cliente-servidor: Comunicação realizada via sockets TCP.
-- Opção de Revanche: Jogadores podem votar para jogar novamente após o fim de uma partida.
-- Gerenciamento de desconexões: Tratamento adequado quando jogadores saem da partida.
-- Segurança em multithreading: Uso de locks para acesso seguro ao estado do jogo em ambiente multi-thread.
-- Scripts de automação: Scripts bash para facilitar configuração e execução do projeto.
-- Configuração por variáveis de ambiente: Uso de arquivo .env para configurações de rede.
-- Física realista: Sistema de colisão e movimento da bola com aceleração progressiva.
-- Interface intuitiva: Entrada de nome, feedback visual durante toda a experiência do jogo.
-- Múltiplas partidas simultâneas: O servidor suporta várias partidas independentes ao mesmo tempo.
+## Possible Future Improvements
 
-## Possíveis Melhorias Futuras
+### Game Enhancements
 
-### Melhorias do Jogo
+- Play with specific friends.  
+- Audio and sound effects (collisions, background music, victory).  
+- In-game scoring system.  
+- Player ranking system.  
+- Allow searching for new opponents without restarting.
 
-- Permitir que jogadores joguem com amigos específicos
-- Áudio e efeitos sonoros: Som de colisão, música de fundo e vítoria
-- Sistema de pontuação durante a realização do jogo
-- Ranking entre jogadores
-- Permitir que um jogador busque outro oponente sem a necessidade de encerrar o processo.
+### Network Enhancements
 
-### Melhorias de Rede
+- Reconnection mechanism for temporary disconnections.  
+- Consider using **UDP** for paddle movements.  
+- Optimize network data size.  
+- Evaluate slightly lower FPS (<60) for performance.
 
-- Mecanismo de reconexão: Permite que jogadores possam se reconectar em caso de desconexão temporária.
-- Possível utilização do protocolo UDP para movimentação dos paddles (RAQUETES)
-- Possível otimização no tamanho dos dados enviados na rede
-- Avaliar utilizar FPS um pouco menor (< 60)
