@@ -16,13 +16,13 @@ BALL_SPEED_X_INITIAL, BALL_SPEED_Y_INITIAL = 4, 4
 SPEED_INCREASE_PER_FRAME = 0.005
 MAX_SPEED = 12
 
-# Inicializar pygame para usar Rect
+# Initialize pygame to use Rect
 pygame.init()
 
 class Game:
     """
-    Representa um jogo de Pong com dois jogadores.
-    Cada jogo tem seu próprio lock para acessar o estado do jogo de forma segura.
+    Represents a two-player Pong game.
+    Each game has its own lock to securely access the game state.
     """
     def __init__(self, game_id: str):
         self.game_id = game_id
@@ -45,33 +45,33 @@ class Game:
         }
     
     def get_state_copy(self):
-        """Pega uma cópia segura do estado atual do jogo"""
+        """Get a secure copy of the current game state"""
         with self.lock:
             return self.state.copy()
     
     def update_connected_players(self, delta: int):
-        """Atualiza o número de jogadores conectados de forma segura"""
+        """Updates the number of securely connected players"""
         with self.lock:
             self.state["connected_players"] += delta
     
     def set_player_name(self, player_id: int, name: str):
-        """Define o nome de um jogador de forma segura"""
+        """Set a player's name securely"""
         with self.lock:
             self.state["player_names"][player_id] = name
     
     def update_paddle(self, player_id: int, paddle_rect):
-        """Atualiza a posição da raquete de um jogador"""
+        """Updates a player's racket position"""
         with self.lock:
             self.state["paddles"][player_id] = paddle_rect
     
     def increment_play_again_votes(self):
-        """Adiciona um voto para jogar novamente"""
+        """Add a vote to play again"""
         with self.lock:
             self.state["play_again_votes"] += 1
             return self.state["play_again_votes"]
     
     def reset_game(self):
-        """Reinicia o jogo para uma nova partida"""
+        """Restart the game for a new start"""
         with self.lock:
             self.state["paddles"] = [
                 pygame.Rect(WIDTH/2 - PADDLE_WIDTH/2, HEIGHT - 20 - PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_HEIGHT),
@@ -85,20 +85,20 @@ class Game:
             self.state["play_again_votes"] = 0
     
     def set_player_left(self):
-        """Marca que um jogador saiu da partida"""
+        """Marks that a player has left the match"""
         with self.lock:
             self.state["player_leaved"] = True
     
     def deactivate(self):
-        """Desativa o jogo (encerra a partida)"""
+        """Disables the game (ends the match)"""
         with self.lock:
             self.state["active"] = False
 
 def countdown_thread(game: Game):
     """
-    Faz a contagem regressiva antes do jogo começar
+    Countdown before the game starts
     """
-    print(f"Iniciando countdown para jogo {game.game_id}")
+    print(f"Starting countdown for game {game.game_id}")
     
     while True:
         with game.lock:
@@ -110,35 +110,32 @@ def countdown_thread(game: Game):
             time.sleep(1)
             with game.lock:
                 game.state["countdown"] -= 1
-                print(f"Jogo {game.game_id}: Countdown = {game.state['countdown']+1}")
+                print(f"Game {game.game_id}: Countdown = {game.state['countdown']+1}")
         else:
             with game.lock:
                 game.state["game_started"] = True
             break
     
-    print(f"Countdown do jogo {game.game_id} finalizado")
+    print(f"Countdown for game {game.game_id} has ended")
 
 def game_logic_thread(game: Game):
     """
-    Controla o movimento da bola e verifica quem ganhou.
+    Control the movement of the ball and check who won.    
     """
-    print(f"Iniciando lógica do jogo {game.game_id}")
+    print(f"Starting game {game.game_id} logic")
 
     while True:
-        # Leitura rápida do estado com lock mínimo
         with game.lock:
             is_active = game.state["active"]
             countdown = game.state["countdown"]
             winner_id = game.state["winner_id"]
         
-        # Verifica se deve continuar
         if not is_active:
             break
 
-        # Só processa física se jogo está rodando
         if countdown <= 0 and winner_id is None:
             
-            # Captura snapshot do estado atual com lock mínimo
+            # Captures snapshot of the current state with minimal locking
             with game.lock:
                 current_ball = game.state["ball"].copy()
                 current_speed = game.state["ball_speed"].copy()
@@ -147,7 +144,7 @@ def game_logic_thread(game: Game):
             
             ball_speed_x, ball_speed_y = current_speed
             
-            # Aumenta velocidade gradualmente
+            # Increase speed gradually
             if abs(ball_speed_y) < MAX_SPEED:
                 new_speed_y = abs(ball_speed_y) + SPEED_INCREASE_PER_FRAME
                 ball_speed_y = math.copysign(new_speed_y, ball_speed_y)
@@ -156,19 +153,19 @@ def game_logic_thread(game: Game):
                 new_speed_x = abs(ball_speed_x) + SPEED_INCREASE_PER_FRAME
                 ball_speed_x = math.copysign(new_speed_x, ball_speed_x)
             
-            # Calcula nova posição da bola
+            # Calculates new ball position
             new_ball_x = current_ball.x + ball_speed_x
             new_ball_y = current_ball.y + ball_speed_y
             
-            # Colisões com paredes laterais
+            # Collisions with side walls
             if new_ball_x <= 0 or new_ball_x >= WIDTH - current_ball.width:
                 ball_speed_x *= -1
                 new_ball_x = current_ball.x + ball_speed_x  # Recalcula posição
             
-            # Cria rect temporário para teste de colisão
+            # Creates temporary rect for collision testing
             temp_ball = pygame.Rect(new_ball_x, new_ball_y, current_ball.width, current_ball.height)
             
-            # Colisões com raquetes
+            # Collisions with rackets
             if (temp_ball.colliderect(current_paddles[0]) and ball_speed_y > 0):
                 ball_speed_y = -abs(ball_speed_y)
                 new_ball_y = current_ball.y + ball_speed_y
@@ -176,14 +173,13 @@ def game_logic_thread(game: Game):
                 ball_speed_y = abs(ball_speed_y)
                 new_ball_y = current_ball.y + ball_speed_y
             
-            # Verifica condições de vitória
+            # Check victory conditions
             new_winner_id = None
             if new_ball_y <= 0:
                 new_winner_id = 0
             elif new_ball_y >= HEIGHT - current_ball.height:
                 new_winner_id = 1
             
-            #  Aplicação dos resultados com lock mínimo
             with game.lock:
                 game.state["ball"].x = new_ball_x
                 game.state["ball"].y = new_ball_y
@@ -192,51 +188,50 @@ def game_logic_thread(game: Game):
                 if new_winner_id is not None:
                     game.state["winner_id"] = new_winner_id
                     if connected_players == 2:
-                        print(f'Jogo {game.game_id}: Jogador {new_winner_id+1} venceu!')
+                        print(f'Game {game.game_id}: Player {new_winner_id+1} won!')
         
-        time.sleep(1/60)  # 60 quadros por segundo
-    print(f"Encerrando lógica do jogo {game.game_id}")
+        time.sleep(1/60)
+    print(f"Closing game {game.game_id} logic")
 
 def client_thread(conn: socket.socket, game: Game, player_id: int):
     """
-    Thread que cuida da comunicação com um cliente específico.
+    Thread that handles communication with a specific client.
     """
     try:
-        print(f"Cliente conectado: Jogo {game.game_id}, Jogador {player_id+1}")
+        print(f"Connected client: Game {game.game_id}, Player {player_id+1}")
         
-        # Manda qual jogador ele é (0 ou 1)
+        # Send player ID
         conn.send(pickle.dumps(player_id))
         
-        # Recebe o nome que o jogador digitou
+        # Receive player name
         try:
             player_name = pickle.loads(conn.recv(2048))
         except Exception as e:
             print(f"Erro ao receber nome: {e}")
-            player_name = "Fulano"
+            player_name = "So-and-so"
         
 
-        # Salva o nome do jogador no jogo
+        # Save player name
         game.set_player_name(player_id, player_name)
-        print(f"Jogador {player_id+1} do jogo {game.game_id} definido como: {player_name}")
+        print(f"Player {player_id+1} of game {game.game_id} defined as: {player_name}")
 
-        # Aumenta o contador de jogadores conectados
         game.update_connected_players(1)
         
-        # Se ambos jogadores estão conectados, inicia countdown
+        # If both players are connected, countdown starts
         with game.lock:
             if game.state["connected_players"] == 2 and not game.state["game_started"]:
                 countdown_logic = threading.Thread(target=countdown_thread, args=(game,))
                 countdown_logic.start()
                 game.state["game_started"] = True
         
-        # Loop principal do cliente
+        # Client main loop
         while game.state["active"]:
             try:
-                # Manda o estado atual do jogo para o cliente
+                # Send curr game state
                 conn.send(pickle.dumps(game.get_state_copy()))
                 
                 data = conn.recv(2048)
-                if not data: # Cliente desconectou
+                if not data: # Disconnected client
                     break
                 
                 received_data = pickle.loads(data)
@@ -245,32 +240,30 @@ def client_thread(conn: socket.socket, game: Game, player_id: int):
                     votes = game.increment_play_again_votes()
                     print(f"Voto para reiniciar jogo {game.game_id}: {votes}/2")
                     
-                    # Se ambos votaram, reinicia o jogo
+                    # If both voted, restart the game
                     if votes >= 2:
-                        print(f"Reiniciando jogo {game.game_id}")
+                        print(f"Restarting game {game.game_id}")
                         game.reset_game()
                         countdown_logic = threading.Thread(target=countdown_thread, args=(game,))
                         countdown_logic.start()
                         
                 elif isinstance(received_data, pygame.Rect):
-                    # Atualiza onde está a raquete do jogador
                     game.update_paddle(player_id, received_data)
                 
             except Exception as e:
-                print(f"Erro na comunicação com {player_name}: {e}")
+                print(f"Error in communication with {player_name}: {e}")
                 break
         
-        print(f"Desconectando {player_name} do jogo {game.game_id}")
+        print(f"Disconnecting {player_name} from game {game.game_id}")
         game.update_connected_players(-1)
         game.set_player_left()
         
-        # Verifica se deve desativar o jogo
         with game.lock:
             if game.state["connected_players"] == 0:
                 game.deactivate()
-                print(f"Jogo {game.game_id} encerrado - sem jogadores")
+                print(f"Game {game.game_id} terminated - no players connected")
     except Exception as e:
-        print(f"Erro na thread do cliente {player_name} do jogo {game.game_id}: {e}")
+        print(f"Error in client thread of {player_name} in game {game.game_id}: {e}")
     
     try:
         conn.close()
@@ -280,58 +273,57 @@ def client_thread(conn: socket.socket, game: Game, player_id: int):
 def main():
     load_dotenv()
     
-    # Configurações do servidor
     ip_address = os.getenv("SERVER_IP")
     port_number = int(os.getenv("SERVER_PORT"))
     
-    # TCP socket para o servidor
+    # TCP socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     
     try:
         s.bind((ip_address, port_number))
         s.listen(5) 
-        print(f"Servidor Pong game iniciado em {ip_address}:{port_number}")
-        print("Aguardando conexões...")
+        print(f"Pong game server started at {ip_address}:{port_number}")
+        print("Waiting for connections...")
     except socket.error as e:
-        print(f"Erro ao iniciar servidor: {e}")
+        print(f"Error starting server: {e}")
         return
     
-    # Lista de jogos esperando o segundo jogador
+    # List of games waiting for a second player
     unmatched_games = list()  
     
     try:
         while True:
             conn, addr = s.accept()
-            print(f"Nova conexão de {addr}")
+            print(f"New connection from {addr}")
             
             game = None
             player_id = int()
 
-            # Procura se tem algum jogo esperando jogador, senão cria um novo
+            # Check if there is a game waiting for a player, otherwise create a new one
             if len(unmatched_games) > 0:
                 game = unmatched_games.pop()
                 player_id = 1
-                print(f"Adicionando jogador ao jogo {game.game_id}")
+                print(f"Adding player to game {game.game_id}")
             else:
-                # Cria um jogo novo
+                # Create a new game
                 game_id = str(randint(1000, 9999))
                 game = Game(game_id)
                 unmatched_games.append(game)
                 player_id = 0
-                print(f"Criando novo jogo {game.game_id}")
+                print(f"Creating new game {game.game_id}")
                 
-                # Começa a lógica do jogo (movimento da bola)
+                # Start the game logic (ball movement, physics)
                 game_logic = threading.Thread(target=game_logic_thread, args=(game,))
                 game_logic.start()
             
-            # Inicia thread do cliente
+            # Start client thread
             client_logic = threading.Thread(target=client_thread, args=(conn, game, player_id))
             client_logic.start()
             
     except KeyboardInterrupt:
-        print("\nServidor interrompido pelo usuário")
+        print("\nServer interrupted by user")
     except Exception as e:
-        print(f"Erro no servidor: {e}")
+        print(f"Server error: {e}")
     finally:
         s.close()
 
