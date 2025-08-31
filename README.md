@@ -28,7 +28,7 @@ Implementação multiplayer do jogo *Pong* utilizando a biblioteca Pygame para a
 Execute os seguintes comandos para clonar e acessar o repositório:
 
 ```bash
-git clone 
+git clone https://github.com/joaoloss/pong-game.git
 cd pong-game
 ```
 
