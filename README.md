@@ -27,8 +27,8 @@ The project demonstrates practical applications of **Computer Networks** and **O
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/joaoloss/pong-game.git
-cd pong-game
+git clone https://github.com/joaoloss/multiplayer-pong-game.git
+cd multiplayer-pong-game
 ```
 
 **2. Environment Setup**
